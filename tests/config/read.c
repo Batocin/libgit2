@@ -849,6 +849,20 @@ void test_config_read__invalid_quoted_third_section(void)
 	git_config_free(cfg);
 }
 
+void test_config_read__unreadable_file_ignored(void)
+{
+	git_buf buf = GIT_BUF_INIT;
+	git_config *cfg;
+
+	cl_set_cleanup(&clean_test_config, NULL);
+	cl_git_mkfile("./testconfig", "[some] var = value\n[some \"OtheR\"] var = value");
+	cl_git_pass(p_chmod("./testconfig", 0));
+	cl_git_fail_with(GIT_ENOTFOUND, git_config_open_ondisk(&cfg, "./testconfig"));
+
+	git_config_free(cfg);
+	git_buf_dispose(&buf);
+}
+
 void test_config_read__single_line(void)
 {
 	git_buf buf = GIT_BUF_INIT;
